@@ -9,8 +9,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;700&display=swap');
         body {
             font-family: 'Rajdhani', sans-serif;
-            background-color: #0A2239;
-            color: #1D84B5;
+            background-color: #0C1425;
+            color: #d8f5ff;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -19,7 +19,7 @@
             padding: 2rem;
         }
         .container {
-            background-color: rgba(14, 21, 38, 0.9);
+            background-color: #0A2239;
             border-radius: 1.5rem;
             padding: 2.5rem;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
@@ -28,24 +28,24 @@
             display: flex;
             flex-direction: column;
             gap: 2rem;
-            border: 1px solid #2a3a54;
+            border: 1px solid #176087;
         }
         h1 {
-            background: linear-gradient(90deg, #0A2239, #0C1425);
+            background: linear-gradient(90deg, #1D84B5, #53A2BE);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 700;
             letter-spacing: 0.1em;
-            text-shadow: 0 0 10px #87ceeb;
+            text-shadow: 0 0 10px #53A2BE;
         }
         .scrollable-list {
             max-height: 50vh;
             overflow-y: auto;
-            border: 1px solid #3d4c6a;
+            border: 1px solid #176087;
             border-radius: 0.75rem;
         }
         .item-card {
-            background-color: #1f2a41;
+            background-color: #0C1425;
             border-radius: 0.75rem;
             padding: 1rem;
             display: flex;
@@ -57,25 +57,25 @@
         }
         .item-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 4px 20px rgba(135, 206, 235, 0.3);
-            border-color: #38bdf8;
+            box-shadow: 0 4px 20px rgba(83, 162, 190, 0.3);
+            border-color: #53A2BE;
         }
         .item-card.selected {
-            border-color: #00e0ff;
-            background-color: #2a3d52;
-            box-shadow: 0 0 15px rgba(0, 224, 255, 0.7);
+            border-color: #53A2BE;
+            background-color: #061a2e;
+            box-shadow: 0 0 15px rgba(83, 162, 190, 0.7);
         }
         .item-icon {
             width: 48px;
             height: 48px;
-            background-color: #111e38;
+            background-color: #0C1425;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
             overflow: hidden;
-            border: 1px solid #3d4c6a;
+            border: 1px solid #176087;
         }
         .item-icon img {
             width: 100%;
@@ -83,19 +83,19 @@
             object-fit: contain;
         }
         .resource-list li {
-            background-color: #1f2a41;
+            background-color: #0C1425;
             border-radius: 0.5rem;
             padding: 0.75rem 1.25rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid #3d4c6a;
+            border: 1px solid #176087;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
         .resource-icon {
             width: 32px;
             height: 32px;
-            background-color: #2e4466;
+            background-color: #1D84B5;
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
@@ -109,8 +109,8 @@
             object-fit: contain;
         }
         .search-input {
-            background-color: #1f2a41;
-            border: 1px solid #3d4c6a;
+            background-color: #0C1425;
+            border: 1px solid #176087;
             color: #d8f5ff;
             padding: 0.75rem 1.25rem;
             border-radius: 0.75rem;
@@ -119,8 +119,8 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .search-input:focus {
-            border-color: #00e0ff;
-            box-shadow: 0 0 10px rgba(0, 224, 255, 0.5);
+            border-color: #53A2BE;
+            box-shadow: 0 0 10px rgba(83, 162, 190, 0.5);
         }
         .quantity-controls {
             display: flex;
@@ -128,8 +128,8 @@
             gap: 0.5rem;
         }
         .quantity-input {
-            background-color: #2e4466;
-            border: 1px solid #4a5c7a;
+            background-color: #0C1425;
+            border: 1px solid #176087;
             color: #d8f5ff;
             padding: 0.25rem 0.5rem;
             border-radius: 0.5rem;
@@ -149,7 +149,7 @@
 
     <div class="container mx-auto p-8 rounded-3xl shadow-lg bg-gray-800 backdrop-filter backdrop-blur-sm bg-opacity-70">
         <div class="flex justify-center mb-6">
-            <img src="https://raw.githubusercontent.com/Susnugg/astroneer-resource-planner.github.io/main/icons/logo.png" alt="ASTRONEER Logo" class="h-24 mx-auto" style="filter: drop-shadow(0 0 10px #87ceeb);">
+            <img src="https://raw.githubusercontent.com/Susnugg/astroneer-resource-planner.github.io/main/icons/logo.png" alt="ASTRONEER Logo" class="h-24 mx-auto" style="filter: drop-shadow(0 0 10px #53A2BE);">
         </div>
 
         <!-- Left Column: Item Selection -->
