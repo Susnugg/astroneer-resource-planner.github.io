@@ -9,7 +9,10 @@
         /* Base styles and fonts */
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-            background-color: #0C1425;
+            background-image: url('https://raw.githubusercontent.com/Susnugg/astroneer-resource-planner.github.io/main/icons/bg.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: #d8f5ff;
             display: flex;
             flex-direction: column;
@@ -32,7 +35,7 @@
         }
 
         .container {
-            background-color: #0A2239;
+            background-color: rgba(10, 34, 57, 0.8); /* Updated to a transparent color */
             border-radius: 1.5rem;
             padding: 2.5rem;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
@@ -44,14 +47,15 @@
             border: 1px solid #176087;
             animation: fadeIn 0.8s ease-in-out forwards;
         }
-        .scrollable-list {
+        .scrollable-list, #resourceTotals {
+            background-color: rgba(6, 26, 46, 0.7); /* Updated to match new theme */
             max-height: 50vh;
             overflow-y: auto;
             border: 1px solid #176087;
             border-radius: 0.75rem;
         }
         .item-card {
-            background-color: #0C1425;
+            background-color: rgba(12, 20, 37, 0.8); /* Updated to a transparent color */
             border-radius: 0.75rem;
             padding: 1rem;
             display: flex;
@@ -84,7 +88,7 @@
         .item-icon {
             width: 48px;
             height: 48px;
-            background-color: #0C1425;
+            background-color: rgba(12, 20, 37, 0.8); /* Updated to transparent color */
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -104,7 +108,7 @@
             gap: 0.75rem;
         }
         .resource-list li {
-            background-color: #0C1425;
+            background-color: rgba(12, 20, 37, 0.8); /* Updated to a transparent color */
             border-radius: 0.5rem;
             padding: 0.75rem 1.25rem;
             display: flex;
@@ -150,7 +154,7 @@
             object-fit: contain;
         }
         .search-input {
-            background-color: #0C1425;
+            background-color: rgba(12, 20, 37, 0.8); /* Updated to a transparent color */
             border: 1px solid #176087;
             color: #d8f5ff;
             padding: 0.75rem 1.25rem;
@@ -170,7 +174,7 @@
             gap: 0.5rem;
         }
         .quantity-input {
-            background-color: #0C1425;
+            background-color: rgba(12, 20, 37, 0.8); /* Updated to a transparent color */
             border: 1px solid #176087;
             color: #d8f5ff;
             padding: 0.25rem 0.5rem;
@@ -187,9 +191,9 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-sky-100 p-8 flex items-center justify-center min-h-screen">
+<body class="text-sky-100 p-8 flex items-center justify-center min-h-screen">
 
-    <div class="container mx-auto p-8 rounded-3xl shadow-lg bg-gray-800 backdrop-filter backdrop-blur-sm bg-opacity-70">
+    <div class="container mx-auto p-8 rounded-3xl shadow-lg backdrop-filter backdrop-blur-sm bg-opacity-70">
         <!-- Title text instead of the logo image -->
         <div class="flex justify-center my-6">
             <img src="https://raw.githubusercontent.com/Susnugg/astroneer-resource-planner.github.io/main/icons/logo.png" alt="Astroneer Logo" class="h-16">
@@ -200,7 +204,7 @@
             <div class="md:w-1/2">
                 <h2 class="text-xl font-bold mb-4">Select Items to Craft</h2>
                 <input type="text" id="searchInput" class="search-input mb-4" placeholder="Search for items...">
-                <div class="scrollable-list p-4 bg-gray-900 rounded-xl overflow-y-scroll max-h-[50vh]">
+                <div class="scrollable-list p-4 rounded-xl overflow-y-scroll max-h-[50vh]">
                     <!-- Item list will be populated by JavaScript -->
                     <div id="itemList" class="flex flex-col gap-3"></div>
                 </div>
@@ -209,7 +213,7 @@
             <!-- Right Column: Resource Totals -->
             <div class="md:w-1/2">
                 <h2 class="text-xl font-bold mb-4">Total Resources Required</h2>
-                <div id="resourceTotals" class="p-6 bg-gray-900 rounded-xl">
+                <div id="resourceTotals" class="p-6 rounded-xl">
                     <ul id="resourceList" class="resource-list">
                         <!-- Resource totals will be populated by JavaScript -->
                     </ul>
@@ -619,7 +623,7 @@
                     // Create new item and animate it in
                     const li = document.createElement('li');
                     li.dataset.resourceName = resourceName;
-                    li.className = "flex items-center justify-between bg-gray-800 p-3 rounded-lg shadow-inner resource-list-item-enter";
+                    li.className = "flex items-center justify-between p-3 rounded-lg shadow-inner resource-list-item-enter";
                     li.style.animationDelay = `${delay}s`;
 
                     const resourceImage = resourceImages[resourceName];
