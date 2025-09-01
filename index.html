@@ -6,9 +6,9 @@
     <title>Astroneer Resource Planner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;700&display=swap');
+        /* Base styles and fonts */
         body {
-            font-family: 'Rajdhani', sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
             background-color: #0C1425;
             color: #d8f5ff;
             display: flex;
@@ -18,6 +18,19 @@
             min-height: 100vh;
             padding: 2rem;
         }
+        
+        /* Define the fade-in animation for the container */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Define a fade-in for list items to appear sequentially */
+        @keyframes listItemFadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
         .container {
             background-color: #0A2239;
             border-radius: 1.5rem;
@@ -29,14 +42,7 @@
             flex-direction: column;
             gap: 2rem;
             border: 1px solid #176087;
-        }
-        h1 {
-            background: linear-gradient(90deg, #1D84B5, #53A2BE);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-shadow: 0 0 10px #53A2BE;
+            animation: fadeIn 0.8s ease-in-out forwards;
         }
         .scrollable-list {
             max-height: 50vh;
@@ -52,18 +58,28 @@
             align-items: center;
             gap: 1rem;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
+            /* Smoother transition for all properties */
+            transition: all 0.3s ease-in-out;
             border: 2px solid transparent;
         }
         .item-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-4px) scale(1.02);
             box-shadow: 0 4px 20px rgba(83, 162, 190, 0.3);
             border-color: #53A2BE;
         }
+        
+        /* New: Add a satisfying "press" effect on click */
+        .item-card:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 10px rgba(83, 162, 190, 0.5);
+            transition: all 0.1s ease-out;
+        }
+        
         .item-card.selected {
             border-color: #53A2BE;
             background-color: #061a2e;
             box-shadow: 0 0 15px rgba(83, 162, 190, 0.7);
+            transform: scale(1.01);
         }
         .item-icon {
             width: 48px;
@@ -82,6 +98,11 @@
             height: 100%;
             object-fit: contain;
         }
+        .resource-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
         .resource-list li {
             background-color: #0C1425;
             border-radius: 0.5rem;
@@ -91,7 +112,27 @@
             align-items: center;
             border: 1px solid #176087;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease-in-out;
         }
+        
+        /* Animation for new items entering the resource list */
+        @keyframes fadeInMoveIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .resource-list-item-enter {
+            animation: fadeInMoveIn 0.5s ease-out forwards;
+        }
+
+        /* Animation for items leaving the resource list */
+        @keyframes fadeOutMoveOut {
+            from { opacity: 1; transform: translateX(0); height: auto; padding: 0.75rem 1.25rem; margin-bottom: 0.75rem; }
+            to { opacity: 0; transform: translateX(20px); height: 0; padding: 0; margin: 0; }
+        }
+        .resource-list-item-exit {
+            animation: fadeOutMoveOut 0.5s ease-in forwards;
+        }
+
         .resource-icon {
             width: 32px;
             height: 32px;
@@ -116,7 +157,8 @@
             border-radius: 0.75rem;
             width: 100%;
             outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            /* Added smooth transition on input focus */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .search-input:focus {
             border-color: #53A2BE;
@@ -148,8 +190,9 @@
 <body class="bg-gray-900 text-sky-100 p-8 flex items-center justify-center min-h-screen">
 
     <div class="container mx-auto p-8 rounded-3xl shadow-lg bg-gray-800 backdrop-filter backdrop-blur-sm bg-opacity-70">
-        <div class="flex justify-center mb-6">
-            <img src="https://raw.githubusercontent.com/Susnugg/astroneer-resource-planner.github.io/main/icons/logo.png" alt="ASTRONEER Logo" class="h-24 mx-auto" style="filter: drop-shadow(0 0 10px #53A2BE);">
+        <!-- Title text instead of the logo image -->
+        <div class="flex justify-center my-6">
+            <img src="https://raw.githubusercontent.com/Susnugg/astroneer-resource-planner.github.io/main/icons/logo.png" alt="Astroneer Logo" class="h-16">
         </div>
 
         <!-- Left Column: Item Selection -->
@@ -167,7 +210,7 @@
             <div class="md:w-1/2">
                 <h2 class="text-xl font-bold mb-4">Total Resources Required</h2>
                 <div id="resourceTotals" class="p-6 bg-gray-900 rounded-xl">
-                    <ul id="resourceList" class="flex flex-col gap-2">
+                    <ul id="resourceList" class="resource-list">
                         <!-- Resource totals will be populated by JavaScript -->
                     </ul>
                     <p id="noSelectionMessage" class="text-center text-gray-500 mt-4">Select an item to see the resource breakdown.</p>
@@ -431,6 +474,8 @@
                         const item = allItems[category][itemName];
                         const card = document.createElement('div');
                         const isSelected = selectedItems.has(itemName);
+                        // We add a data attribute to make it easy to find this element later
+                        card.dataset.itemName = itemName; 
                         card.className = `item-card ${isSelected ? 'selected' : ''}`;
                         
                         card.innerHTML = `
@@ -471,15 +516,38 @@
         }
 
         // Function to toggle an item's selection and recalculate resources.
+        // This function now only updates the single card that was clicked,
+        // preventing the "snap" effect caused by a full re-render.
         function toggleSelection(itemName) {
+            const card = document.querySelector(`[data-item-name="${itemName}"]`);
+            if (!card) return; // Exit if element is not found
+
             if (selectedItems.has(itemName)) {
                 selectedItems.delete(itemName);
                 delete itemQuantities[itemName];
+                card.classList.remove('selected');
+                // Remove the quantity input from the card
+                const quantityControls = card.querySelector('.quantity-controls');
+                if (quantityControls) quantityControls.remove();
+
             } else {
                 selectedItems.add(itemName);
                 itemQuantities[itemName] = 1;
+                card.classList.add('selected');
+
+                // Add the quantity input to the card
+                const quantityControls = document.createElement('div');
+                quantityControls.className = 'quantity-controls';
+                quantityControls.setAttribute('onclick', 'event.stopPropagation()');
+                quantityControls.innerHTML = `<input type="number" min="1" value="1" data-item-name="${itemName}" class="quantity-input" />`;
+                card.appendChild(quantityControls);
+                
+                // Add event listener to the newly created input
+                const newQuantityInput = quantityControls.querySelector('.quantity-input');
+                if (newQuantityInput) {
+                    newQuantityInput.addEventListener('input', handleQuantityChange);
+                }
             }
-            renderItemList(searchInput.value);
             calculateTotals();
         }
 
@@ -487,7 +555,8 @@
         function calculateTotals() {
             const totalResources = {};
             if (selectedItems.size === 0) {
-                resourceListUl.innerHTML = '';
+                // If nothing is selected, gracefully fade out the list
+                updateResourceList({});
                 noSelectionMessage.classList.remove('hidden');
                 return;
             }
@@ -516,27 +585,57 @@
                 }
             });
 
-            renderResourceList(totalResources);
+            updateResourceList(totalResources);
         }
 
-        // Function to render the final list of resources.
-        function renderResourceList(resources) {
-            resourceListUl.innerHTML = '';
-            for (const resource in resources) {
-                const li = document.createElement('li');
-                li.className = "flex items-center justify-between bg-gray-800 p-3 rounded-lg shadow-inner";
-                const resourceImage = resourceImages[resource];
-                
-                li.innerHTML = `
-                    <span class="flex items-center">
-                        <span class="resource-icon bg-blue-500 text-white">
-                            <img src="${resourceImage}" alt="${resource}" onerror="this.onerror=null; this.src='https://placehold.co/24x24/3b82f6/ffffff?text=${resource.charAt(0)}';">
+        // New function to handle animated updates of the resource list.
+        function updateResourceList(newResources) {
+            const currentItems = Array.from(resourceListUl.children);
+            const newResourceNames = new Set(Object.keys(newResources));
+            const existingResourceNames = new Set(currentItems.map(item => item.dataset.resourceName));
+
+            // Fade out and remove old items
+            currentItems.forEach(item => {
+                const resourceName = item.dataset.resourceName;
+                if (!newResourceNames.has(resourceName)) {
+                    item.classList.add('resource-list-item-exit');
+                    item.addEventListener('animationend', () => {
+                        item.remove();
+                    }, { once: true });
+                }
+            });
+
+            // Add or update new items
+            let delay = 0;
+            for (const resourceName in newResources) {
+                const existingItem = document.querySelector(`li[data-resource-name="${resourceName}"]`);
+                if (existingItem) {
+                    // Update quantity if the item already exists
+                    const quantitySpan = existingItem.querySelector('.font-bold');
+                    if (quantitySpan) {
+                        quantitySpan.textContent = newResources[resourceName];
+                    }
+                } else {
+                    // Create new item and animate it in
+                    const li = document.createElement('li');
+                    li.dataset.resourceName = resourceName;
+                    li.className = "flex items-center justify-between bg-gray-800 p-3 rounded-lg shadow-inner resource-list-item-enter";
+                    li.style.animationDelay = `${delay}s`;
+
+                    const resourceImage = resourceImages[resourceName];
+                    
+                    li.innerHTML = `
+                        <span class="flex items-center">
+                            <span class="resource-icon bg-blue-500 text-white">
+                                <img src="${resourceImage}" alt="${resourceName}" onerror="this.onerror=null; this.src='https://placehold.co/24x24/3b82f6/ffffff?text=${resourceName.charAt(0)}';">
+                            </span>
+                            ${resourceName}
                         </span>
-                        ${resource}
-                    </span>
-                    <span class="font-bold text-lg">${resources[resource]}</span>
-                `;
-                resourceListUl.appendChild(li);
+                        <span class="font-bold text-lg">${newResources[resourceName]}</span>
+                    `;
+                    resourceListUl.appendChild(li);
+                    delay += 0.05; // Small delay for sequential fade-in
+                }
             }
         }
 
