@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astroneer Resource Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #0d1222;
+            color: #d8f5ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container {
+            background-color: rgba(14, 21, 38, 0.9);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            max-width: 950px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            border: 1px solid #2a3a54;
+        }
+        h1 {
+            background: linear-gradient(90deg, #b0e0e6, #87ceeb, #a2d2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 10px #87ceeb;
+        }
+        .scrollable-list {
+            max-height: 50vh;
+            overflow-y: auto;
+            border: 1px solid #3d4c6a;
+            border-radius: 0.75rem;
+        }
+        .item-card {
+            background-color: #1f2a41;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+        .item-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 20px rgba(135, 206, 235, 0.3);
+            border-color: #38bdf8;
+        }
+        .item-card.selected {
+            border-color: #00e0ff;
+            background-color: #2a3d52;
+            box-shadow: 0 0 15px rgba(0, 224, 255, 0.7);
+        }
+        .item-icon {
+            width: 48px;
+            height: 48px;
+            background-color: #111e38;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+            border: 1px solid #3d4c6a;
+        }
+        .item-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .resource-list li {
+            background-color: #1f2a41;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #3d4c6a;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        .resource-icon {
+            width: 32px;
+            height: 32px;
+            background-color: #2e4466;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            overflow: hidden;
+        }
+        .resource-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .search-input {
+            background-color: #1f2a41;
+            border: 1px solid #3d4c6a;
+            color: #d8f5ff;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-input:focus {
+            border-color: #00e0ff;
+            box-shadow: 0 0 10px rgba(0, 224, 255, 0.5);
+        }
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .quantity-input {
+            background-color: #2e4466;
+            border: 1px solid #4a5c7a;
+            color: #d8f5ff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            width: 60px;
+            text-align: center;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        .quantity-input::-webkit-inner-spin-button,
+        .quantity-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-sky-100 p-8 flex items-center justify-center min-h-screen">
+
+    <div class="container mx-auto p-8 rounded-3xl shadow-lg bg-gray-800 backdrop-filter backdrop-blur-sm bg-opacity-70">
+        <div class="flex justify-center mb-6">
+            <img src="https://i.imgur.com/vH1W17S.png" alt="ASTRONEER Logo" class="h-24 mx-auto" style="filter: drop-shadow(0 0 10px #87ceeb);">
+        </div>
+
+        <!-- Left Column: Item Selection -->
+        <div class="flex flex-col md:flex-row gap-8">
+            <div class="md:w-1/2">
+                <h2 class="text-xl font-bold mb-4">Select Items to Craft</h2>
+                <input type="text" id="searchInput" class="search-input mb-4" placeholder="Search for items...">
+                <div class="scrollable-list p-4 bg-gray-900 rounded-xl overflow-y-scroll max-h-[50vh]">
+                    <!-- Item list will be populated by JavaScript -->
+                    <div id="itemList" class="flex flex-col gap-3"></div>
+                </div>
+            </div>
+
+            <!-- Right Column: Resource Totals -->
+            <div class="md:w-1/2">
+                <h2 class="text-xl font-bold mb-4">Total Resources Required</h2>
+                <div id="resourceTotals" class="p-6 bg-gray-900 rounded-xl">
+                    <ul id="resourceList" class="flex flex-col gap-2">
+                        <!-- Resource totals will be populated by JavaScript -->
+                    </ul>
+                    <p id="noSelectionMessage" class="text-center text-gray-500 mt-4">Select an item to see the resource breakdown.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // A comprehensive list of craftable items in Astroneer.
+        // Data is organized by the printer required.
+        const allItems = {
+            "Backpack Printer": {
+                "Tethers": {
+                    icon: "https://i.imgur.com/k46M122.png",
+                    recipe: { "Compound": 1 }
+                },
+                "Oxygen Filter": {
+                    icon: "https://i.imgur.com/gK9qA5n.png",
+                    recipe: { "Compound": 1 }
+                },
+                "Small Canister": {
+                    icon: "https://i.imgur.com/c1oK0b2.png",
+                    recipe: { "Resin": 1 }
+                },
+                "Small Battery": {
+                    icon: "https://i.imgur.com/S8WJp6U.png",
+                    recipe: { "Zinc": 1, "Lithium": 1 }
+                },
+                "Small Solar Panel": {
+                    icon: "https://i.imgur.com/QhE3lHj.png",
+                    recipe: { "Copper": 1, "Quartz": 1 }
+                },
+                "Small Wind Turbine": {
+                    icon: "https://i.imgur.com/g0t7V3k.png",
+                    recipe: { "Compound": 1, "Aluminum": 1 }
+                },
+                "Small Generator": {
+                    icon: "https://i.imgur.com/P40Hj5x.png",
+                    recipe: { "Compound": 1, "Organic": 1 }
+                },
+                "Packager": {
+                    icon: "https://i.imgur.com/D4sT8Vz.png",
+                    recipe: { "Graphite": 1 }
+                },
+                "Small Shredder": {
+                    icon: "https://i.imgur.com/T09zKqW.png",
+                    recipe: { "Steel": 1 }
+                },
+                "Drill Mod 1": {
+                    icon: "https://i.imgur.com/G4Yt0Lg.png",
+                    recipe: { "Titanite": 1 }
+                },
+                "Drill Mod 2": {
+                    icon: "https://i.imgur.com/W2bH6rM.png",
+                    recipe: { "Titanite": 1, "Diamond": 1 }
+                },
+                "Drill Mod 3": {
+                    icon: "https://i.imgur.com/W2bH6rM.png",
+                    recipe: { "Steel": 1, "Titanium": 1 }
+                }
+            },
+            "Small Printer": {
+                "Small Storage": {
+                    icon: "https://i.imgur.com/3Z4S0T5.png",
+                    recipe: { "Resin": 2 }
+                },
+                "Medium Storage": {
+                    icon: "https://i.imgur.com/uR1d3o8.png",
+                    recipe: { "Resin": 2, "Compound": 2 }
+                },
+                "Medium Solar Panel": {
+                    icon: "https://i.imgur.com/8Qp4Z0G.png",
+                    recipe: { "Copper": 1, "Glass": 1 }
+                },
+                "Medium Wind Turbine": {
+                    icon: "https://i.imgur.com/8Fk7u9O.png",
+                    recipe: { "Aluminum": 1, "Ceramic": 1 }
+                },
+                "Medium Battery": {
+                    icon: "https://i.imgur.com/Xk9v57A.png",
+                    recipe: { "Zinc": 1, "Lithium": 1 }
+                },
+                "Smelting Furnace": {
+                    icon: "https://i.imgur.com/4lM3e2T.png",
+                    recipe: { "Compound": 2, "Zinc": 1, "Copper": 1 }
+                },
+                "Research Chamber": {
+                    icon: "https://i.imgur.com/A6j4L6p.png",
+                    recipe: { "Compound": 1, "Glass": 1, "Graphite": 1 }
+                },
+                "Chemistry Lab": {
+                    icon: "https://i.imgur.com/C30H2aK.png",
+                    recipe: { "Tungsten": 1, "Glass": 1, "Ceramic": 1 }
+                },
+                "Atmospheric Condenser": {
+                    icon: "https://i.imgur.com/D9b4m2J.png",
+                    recipe: { "Steel": 1, "Glass": 1, "Aluminum": 1 }
+                },
+                "Trade Platform": {
+                    icon: "https://i.imgur.com/lO79C9I.png",
+                    recipe: { "Iron": 1, "Compound": 1, "Tungsten": 1 }
+                }
+            },
+            "Medium Printer": {
+                "Rover Seat": {
+                    icon: "https://i.imgur.com/qB3Z3vP.png",
+                    recipe: { "Compound": 1 }
+                },
+                "Crane": {
+                    icon: "https://i.imgur.com/1G6fA6e.png",
+                    recipe: { "Iron": 2, "Aluminum": 1 }
+                },
+                "Winch": {
+                    icon: "https://i.imgur.com/7bE9L5l.png",
+                    recipe: { "Compound": 1, "Iron": 1 }
+                },
+                "Vehicle Bay": {
+                    icon: "https://i.imgur.com/j1y5V9F.png",
+                    recipe: { "Resin": 2, "Compound": 2, "Ceramic": 2 }
+                },
+                "Solid-Fuel Thruster": {
+                    icon: "https://i.imgur.com/L78e4QZ.png",
+                    recipe: { "Ammonium": 1, "Iron": 1, "Ceramic": 1 }
+                },
+                "Hydrazine Thruster": {
+                    icon: "https://i.imgur.com/J3D6p8T.png",
+                    recipe: { "Tungsten": 1, "Steel": 1 }
+                },
+                "Small Shuttle": {
+                    icon: "https://i.imgur.com/W2d5r9o.png",
+                    recipe: { "Aluminum": 2 }
+                },
+                "Medium Rover": {
+                    icon: "https://i.imgur.com/h9D6s6s.png",
+                    recipe: { "Titanium": 1, "Iron": 1 }
+                }
+            },
+            "Large Printer": {
+                "Large Storage": {
+                    icon: "https://i.imgur.com/o5F1h8v.png",
+                    recipe: { "Ceramic": 3 }
+                },
+                "Large Storage Silo": {
+                    icon: "https://i.imgur.com/x0R2l4k.png",
+                    recipe: { "Aluminum": 2, "Steel": 1 }
+                },
+                "Shuttle": {
+                    icon: "https://i.imgur.com/2p9K0hW.png",
+                    recipe: { "Steel": 1, "Nanocarbon Alloy": 1 }
+                },
+                "Large Rover": {
+                    icon: "https://i.imgur.com/8W0m5sZ.png",
+                    recipe: { "Titanium": 2, "Steel": 1 }
+                },
+                "Large Shredder": {
+                    icon: "https://i.imgur.com/B7J6u6j.png",
+                    recipe: { "Iron": 2, "Nanocarbon Alloy": 1 }
+                },
+                "Large Rover Seat": {
+                    icon: "https://i.imgur.com/J7bH4V5.png",
+                    recipe: { "Rubber": 1, "Plastic": 1 }
+                },
+            },
+            "Composite Resources": {
+                "Silicone": {
+                    icon: "https://i.imgur.com/T0b4u3t.png",
+                    recipe: { "Resin": 1, "Quartz": 1, "Methane": 1 }
+                },
+                "Diamond": {
+                    icon: "https://i.imgur.com/E8w9t8f.png",
+                    recipe: { "Graphene": 2 }
+                },
+                "Rubber": {
+                    icon: "https://i.imgur.com/H1tW5E3.png",
+                    recipe: { "Organic": 1, "Resin": 1 }
+                },
+                "Plastic": {
+                    icon: "https://i.imgur.com/B4j5z8m.png",
+                    recipe: { "Compound": 1, "Carbon": 1 }
+                },
+                "Aluminum Alloy": {
+                    icon: "https://i.imgur.com/J5e4o8D.png",
+                    recipe: { "Aluminum": 1, "Copper": 1 }
+                },
+                "Steel": {
+                    icon: "https://i.imgur.com/K3n7b9X.png",
+                    recipe: { "Iron": 1, "Carbon": 1, "Argon": 1 }
+                },
+                "Titanium Alloy": {
+                    icon: "https://i.imgur.com/M6o9w2f.png",
+                    recipe: { "Titanium": 1, "Graphene": 1, "Nitrogen": 1 }
+                },
+                "Nanocarbon Alloy": {
+                    icon: "https://i.imgur.com/F2t5h1c.png",
+                    recipe: { "Steel": 1, "Titanium Alloy": 1, "Helium": 1 }
+                },
+                "Graphene": {
+                    icon: "https://i.imgur.com/V7e5s6r.png",
+                    recipe: { "Graphite": 1, "Hydrazine": 1 }
+                }
+            }
+        };
+
+        const resourceImages = {
+            "Compound": "https://i.imgur.com/m2pB4qA.png",
+            "Resin": "https://i.imgur.com/k9e3y2v.png",
+            "Zinc": "https://i.imgur.com/o2P8r7S.png",
+            "Lithium": "https://i.imgur.com/X0k8w6u.png",
+            "Copper": "https://i.imgur.com/z1qN5aB.png",
+            "Quartz": "https://i.imgur.com/E8t7a6q.png",
+            "Aluminum": "https://i.imgur.com/d5p9b2r.png",
+            "Organic": "https://i.imgur.com/t3w9o7k.png",
+            "Graphite": "https://i.imgur.com/j1y5h7q.png",
+            "Steel": "https://i.imgur.com/b9e2r8j.png",
+            "Titanite": "https://i.imgur.com/v8t0o3y.png",
+            "Diamond": "https://i.imgur.com/C4r2g7f.png",
+            "Glass": "https://i.imgur.com/n1h4y9w.png",
+            "Ceramic": "https://i.imgur.com/l5k7j8o.png",
+            "Tungsten": "https://i.imgur.com/c6f9j2l.png",
+            "Iron": "https://i.imgur.com/a8h5k2x.png",
+            "Ammonium": "https://i.imgur.com/o9k2j7f.png",
+            "Titanium": "https://i.imgur.com/i7h2y9v.png",
+            "Rubber": "https://i.imgur.com/p5q8r3t.png",
+            "Plastic": "https://i.imgur.com/z4x7c8w.png",
+            "Carbon": "https://i.imgur.com/k9j7e2f.png",
+            "Argon": "https://i.imgur.com/x1y9e2z.png",
+            "Graphene": "https://i.imgur.com/v8p0q4j.png",
+            "Nitrogen": "https://i.imgur.com/m2k9j1l.png",
+            "Helium": "https://i.imgur.com/n6t9a2f.png",
+            "Hydrazine": "https://i.imgur.com/o5p2c8r.png",
+            "Methane": "https://i.imgur.com/q1s7v3x.png",
+            "Aluminum Alloy": "https://i.imgur.com/h5r8w2c.png",
+            "Nanocarbon Alloy": "https://i.imgur.com/k9h5j8w.png"
+        };
+        
+
+        let selectedItems = new Set();
+        let itemQuantities = {};
+        const itemListDiv = document.getElementById('itemList');
+        const searchInput = document.getElementById('searchInput');
+        const resourceListUl = document.getElementById('resourceList');
+        const noSelectionMessage = document.getElementById('noSelectionMessage');
+
+        // Function to render the list of items from the allItems object.
+        function renderItemList(query = '') {
+            itemListDiv.innerHTML = '';
+            const lowerCaseQuery = query.toLowerCase();
+
+            for (const category in allItems) {
+                const categoryItems = Object.keys(allItems[category]);
+                const filteredItems = categoryItems.filter(itemName => itemName.toLowerCase().includes(lowerCaseQuery));
+
+                if (filteredItems.length > 0) {
+                    const categoryTitle = document.createElement('h3');
+                    categoryTitle.className = "text-md font-bold text-gray-400 mt-4 mb-2";
+                    categoryTitle.textContent = category;
+                    itemListDiv.appendChild(categoryTitle);
+
+                    filteredItems.forEach(itemName => {
+                        const item = allItems[category][itemName];
+                        const card = document.createElement('div');
+                        const isSelected = selectedItems.has(itemName);
+                        card.className = `item-card ${isSelected ? 'selected' : ''}`;
+                        
+                        card.innerHTML = `
+                            <div class="item-icon">
+                                <img src="${item.icon}" alt="${itemName}" onerror="this.onerror=null; this.src='https://placehold.co/48x48/0c4a6e/7dd3fc?text=Item';">
+                            </div>
+                            <div class="flex-grow">
+                                <p class="font-bold">${itemName}</p>
+                                <p class="text-xs text-gray-400">
+                                    ${Object.entries(item.recipe).map(([resource, amount]) => `${amount} ${resource}`).join(', ')}
+                                </p>
+                            </div>
+                            ${isSelected ? `
+                                <div class="quantity-controls" onclick="event.stopPropagation()">
+                                    <input type="number" min="1" value="${itemQuantities[itemName] || 1}" data-item-name="${itemName}" class="quantity-input" />
+                                </div>
+                            ` : ''}
+                        `;
+                        card.onclick = () => toggleSelection(itemName);
+                        itemListDiv.appendChild(card);
+                    });
+                }
+            }
+
+            // Add event listeners to the new input fields
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('input', handleQuantityChange);
+            });
+        }
+
+        // Function to handle quantity change
+        function handleQuantityChange(event) {
+            const itemName = event.target.dataset.itemName;
+            const newQuantity = Math.max(1, parseInt(event.target.value) || 1);
+            itemQuantities[itemName] = newQuantity;
+            event.target.value = newQuantity; // Ensure the UI reflects the minimum of 1
+            calculateTotals();
+        }
+
+        // Function to toggle an item's selection and recalculate resources.
+        function toggleSelection(itemName) {
+            if (selectedItems.has(itemName)) {
+                selectedItems.delete(itemName);
+                delete itemQuantities[itemName];
+            } else {
+                selectedItems.add(itemName);
+                itemQuantities[itemName] = 1;
+            }
+            renderItemList(searchInput.value);
+            calculateTotals();
+        }
+
+        // Function to calculate the total resources needed based on selected items.
+        function calculateTotals() {
+            const totalResources = {};
+            if (selectedItems.size === 0) {
+                resourceListUl.innerHTML = '';
+                noSelectionMessage.classList.remove('hidden');
+                return;
+            }
+
+            noSelectionMessage.classList.add('hidden');
+
+            selectedItems.forEach(itemName => {
+                // Find the item's recipe, searching through all categories
+                let recipe = null;
+                for (const category in allItems) {
+                    if (allItems[category][itemName]) {
+                        recipe = allItems[category][itemName].recipe;
+                        break;
+                    }
+                }
+
+                if (recipe) {
+                    const quantity = itemQuantities[itemName] || 1;
+                    for (const resource in recipe) {
+                        if (totalResources[resource]) {
+                            totalResources[resource] += recipe[resource] * quantity;
+                        } else {
+                            totalResources[resource] = recipe[resource] * quantity;
+                        }
+                    }
+                }
+            });
+
+            renderResourceList(totalResources);
+        }
+
+        // Function to render the final list of resources.
+        function renderResourceList(resources) {
+            resourceListUl.innerHTML = '';
+            for (const resource in resources) {
+                const li = document.createElement('li');
+                li.className = "flex items-center justify-between bg-gray-800 p-3 rounded-lg shadow-inner";
+                const resourceImage = resourceImages[resource];
+                
+                li.innerHTML = `
+                    <span class="flex items-center">
+                        <span class="resource-icon bg-blue-500 text-white">
+                            <img src="${resourceImage}" alt="${resource}" onerror="this.onerror=null; this.src='https://placehold.co/24x24/3b82f6/ffffff?text=${resource.charAt(0)}';">
+                        </span>
+                        ${resource}
+                    </span>
+                    <span class="font-bold text-lg">${resources[resource]}</span>
+                `;
+                resourceListUl.appendChild(li);
+            }
+        }
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            renderItemList();
+            searchInput.addEventListener('input', () => {
+                renderItemList(searchInput.value);
+            });
+        });
+    </script>
+</body>
+</html>
